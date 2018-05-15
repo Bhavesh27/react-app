@@ -1,9 +1,9 @@
 # See https://help.github.com/ignore-files/ for more about ignoring files.
 
 # dependencies
-/Burger-Guide/node_modules
-/Burger-Guide/.vscode
-/Burger-Guide/src/hoc/Aux.js
+/node_modules
+/.vscode
+/src/hoc/Aux.js
 
 # testing
 /coverage
