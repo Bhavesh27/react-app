@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import auxilary from '../../hoc/auxilary';
+import Auxilary from '../../hoc/Auxilary/Auxilary';
 import Burger from '../../components/Burger/Burger';
 import BuildControls from '../../components/Burger/BuildControls/BuildControls';
 import Modal from '../../components/UI/Modal/Modal';
@@ -31,7 +31,8 @@ class BurgerBuilder extends Component {
     }
 
     componentDidMount () {
-        axios.get( 'https://burger-guide-7289f.firebaseio.com/ingredients.json' )
+        console.log(this.props);
+        axios.get('https://burger-guide-7289f.firebaseio.com/ingredients.json' )
             .then( response => {
                 this.setState( { ingredients: response.data } );
             } )
@@ -92,28 +93,17 @@ class BurgerBuilder extends Component {
 
     purchaseContinueHandler = () => {
         // alert('You continue!');
-        this.setState( { loading: true } );
-        const order = {
-            ingredients: this.state.ingredients,
-            price: this.state.totalPrice,
-            customer: {
-                name: 'Max Schwarzmüller',
-                address: {
-                    street: 'Teststreet 1',
-                    zipCode: '41351',
-                    country: 'Germany'
-                },
-                email: 'test@test.com'
-            },
-            deliveryMethod: 'fastest'
+        
+        const queryParams = [];
+        for (let i in this.state.ingredients) {
+            queryParams.push(encodeURIComponent(i) + '=' + encodeURIComponent(this.state.ingredients[i]));
         }
-        axios.post( '/orders.json', order )
-            .then( response => {
-                this.setState( { loading: false, purchasing: false } );
-            } )
-            .catch( error => {
-                this.setState( { loading: false, purchasing: false } );
-            } );
+        queryParams.push('price=' + this.state.totalPrice);
+        const queryString = queryParams.join('&');
+        this.props.history.push({
+            pathname: '/checkout',
+            search: '?' + queryString
+        });
     }
 
     render () {
@@ -128,7 +118,7 @@ class BurgerBuilder extends Component {
 
         if ( this.state.ingredients ) {
             burger = (
-                <auxilary>
+                <Auxilary>
                     <Burger ingredients={this.state.ingredients} />
                     <BuildControls
                         ingredientAdded={this.addIngredientHandler}
@@ -137,7 +127,7 @@ class BurgerBuilder extends Component {
                         purchasable={this.state.purchasable}
                         ordered={this.purchaseHandler}
                         price={this.state.totalPrice} />
-                </auxilary>
+                </Auxilary>
             );
             orderSummary = <OrderSummary
                 ingredients={this.state.ingredients}
@@ -150,12 +140,12 @@ class BurgerBuilder extends Component {
         }
         // {salad: true, meat: false, ...}
         return (
-            <auxilary>
+            <Auxilary>
                 <Modal show={this.state.purchasing} modalClosed={this.purchaseCancelHandler}>
                     {orderSummary}
                 </Modal>
                 {burger}
-            </auxilary>
+            </Auxilary>
         );
     }
 }
